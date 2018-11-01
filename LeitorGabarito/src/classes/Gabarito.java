@@ -12,6 +12,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.imageio.ImageIO;
 
 /**
@@ -24,12 +26,24 @@ public class Gabarito {
     private char questoes[];
    // private int countQuestoesTeste; // campo para testes
 
-  /*  public static void main(String[] args) {
+    public static void main(String[] args) {
 
-        Gabarito gabarito = new Gabarito();
+    /*    Gabarito gabarito = new Gabarito();
         
-        boolean leu = gabarito.ler("Gabaritos//GABARITOS04082017_0018.jpg"); 
-        if(!leu){
+        String url = "C:\\Users\\Anton\\Desktop\\contrario2.png";
+        
+        
+        gabarito.ler(url);
+        
+    //    gabarito.saveImage(image, "C:\\Users\\Anton\\Desktop\\teste.png", "png");
+
+        
+        
+        
+        
+        
+        
+     /*   if(!leu){
             System.out.println("Não foi possível ler o arquivo");
         }
 
@@ -39,9 +53,9 @@ public class Gabarito {
 
         for (int i = 0; i < 90; i++) {
             System.out.println("Alternativa" + (i + 1) + ":"+gabarito.getQuestoes(i));
-        }
+        }*/
 
-    }*/
+    }
 
     public Gabarito() {
         // inicializa com tamanho padrão
@@ -162,26 +176,58 @@ public class Gabarito {
 
     private int[] getDiffXYQuadradosSuperiores(BufferedImage image) {
         // método retorna a diferença absoluta entre as coordenadas
-        // X e  a diferença normal das coordenadas Y
+        // X para verificar se a imagem se encontra de ponta a cabeça
+        // e  a diferença normal das coordenadas Y para alinhar
+        // 
         int coordX[] = new int[2];
         int coordY[] = new int[2];
+        
+        int alturaImagem = image.getHeight();
+        int larguraImagem = image.getWidth();
 
-        for (int x = 5; x < image.getWidth(); x++) {
-            for (int y = 5; y < 180; y++) {
+        for (int x = 170; x < larguraImagem - 170; x++) {
+            for (int y = 40; y < 220; y++) {
 
-                int escalaCinzaPixel = image.getRGB(x, y) & 0xFF;
+                int escalaCinzaPixel = 0;
+                
+                try
+                {
+                    escalaCinzaPixel = image.getRGB(x, y) & 0xFF;
+                }
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                    continue;
+                }
+                
 
-                // requisito não cumprido continue para a próxima iteranção
+                // continue até encontrar pixels escuros
                 if (escalaCinzaPixel > 100) {
                     continue;
                 }
+
 
                 // verifica o comprimento das quatro arestas para ver se é um quadrado ou um ruído
                 boolean comprimento = true;
                 
                 // aresta horizontal superior
-                for (int i = x + 1; i < x + 15; i++) {
-                    escalaCinzaPixel = image.getRGB(i, y) & 0xFF;
+                for (int i = x + 1; i < x + 10; i++) {
+                    try
+                    {
+                       //previne indexOutOfBonds 
+                       if( i < larguraImagem && y < alturaImagem)
+                       {
+                          escalaCinzaPixel = image.getRGB(i, y) & 0xFF;  
+                       }
+                       else
+                       {
+                           continue;
+                       }
+                    }
+                    catch(Exception ex)
+                    {
+                        ex.printStackTrace();
+                    }
                     if (escalaCinzaPixel > 100) {
                         comprimento = false;
                         break;
@@ -192,8 +238,23 @@ public class Gabarito {
                 }
 
                 // aresta horizontal inferior
-                for (int i = x + 1; i < x + 15; i++) {
-                    escalaCinzaPixel = image.getRGB(i, y + 15) & 0xFF;
+                for (int i = x + 1; i < x + 10; i++) {
+                    try
+                    {
+                        if(i < larguraImagem && y + 10 < alturaImagem)
+                        {
+                           escalaCinzaPixel = image.getRGB(i, y + 10) & 0xFF; 
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                    
                     if (escalaCinzaPixel > 100) {
                         comprimento = false;
                         break;
@@ -208,10 +269,25 @@ public class Gabarito {
                 // pois se seu requisito não for cumprido ela quebra o loop invés 
                 // de continuar para a próxima iteração
                 // pois se houverem bordas irregulares, deseja-se descartar aquela
-                // coordenada y, pois ela pode reconhecer valores falso deviso a sua
+                // coordenada y, pois ela pode reconhecer valores falsos deviso a sua
                 // irregularidade, e o que desejamos é a primeira coordenada Y do quadrado
-                for (int i = y; i < y + 15; i++) {
-                    escalaCinzaPixel = image.getRGB(x, i) & 0xFF;
+                for (int i = y; i < y + 10; i++) {
+                    try
+                    {
+                        if(x < larguraImagem && i < alturaImagem)
+                        {
+                            escalaCinzaPixel = image.getRGB(x, i) & 0xFF;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                    
                     if (escalaCinzaPixel > 100) {
                         comprimento = false;
                         break;
@@ -221,9 +297,24 @@ public class Gabarito {
                     break;
                 }
 
-                
-                for (int i = y + 1; i < y + 15; i++) {
-                    escalaCinzaPixel = image.getRGB(x + 15, i) & 0xFF;
+                //verifica o meio do quadrado
+                for (int i = y + 1; i < y + 10; i++) {
+                    try
+                    {
+                        if(x + 15 < larguraImagem && i < alturaImagem)
+                        {
+                          escalaCinzaPixel = image.getRGB(x + 10, i) & 0xFF;  
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                    
                     if (escalaCinzaPixel > 100) {
                         comprimento = false;
                         break;
@@ -237,12 +328,12 @@ public class Gabarito {
 
                         coordY[0] = y;
                         coordX[0] = x;
-                        x = x + 50;
+                        x = x + 35;
                         break;
                     } else {
                         coordY[1] = y;
                         coordX[1] = x;
-                        x = image.getWidth();
+                        x = larguraImagem;
                         break;
                     }
                 }
@@ -382,7 +473,7 @@ public class Gabarito {
 
     }
 
-    public boolean ler(String url) {
+     public boolean ler(String url) {
         // Lê o  gabarito contendo as questão e Ra analisadas
 
         BufferedImage image = readImage(url);       
@@ -446,7 +537,7 @@ public class Gabarito {
 
             }
         }
-        //saveImage(image,"Gabaritos//GABARITOS04082017_teste.png","PNG"); // comando de teste
+    //    saveImage(image, "C:\\Users\\Anton\\Desktop\\teste.png", "png"); // comando de teste
         return true;
     }
 
@@ -466,11 +557,11 @@ public class Gabarito {
             mean = 0;
             count = 0;
             // pulando 40 pixels na horizontal que é a distancia entre cada quadrado
-            coordX +=40;
+            coordX +=39;
             for (int y = coordY1; y < coordY2; y++) {
                 for(int x = coordX; x < coordX + 78; x++){
                     mean += image.getRGB(x, y) & 0xFF;
-                    image.setRGB(x,y,Color.red.getRGB()); // comando de testes
+       //             image.setRGB(x,y,Color.red.getRGB()); // comando de testes
                     count++;
                 }               
             }
@@ -516,13 +607,13 @@ public class Gabarito {
                 mean = 0;
                 count = 0;
                 // andar mais 52 totalizando 179 do quadrado de marcação
-                coordX += 52;
+                coordX += 51;
                 
                 // ler uma área horizontal de 79 pixels
                 for (int y = coordY1; y < coordY2; y++) {
                     for (int x = coordX; x < coordX + 79; x++) {
                         mean += image.getRGB(x, y) & 0xFF;
-                        image.setRGB(x,y,Color.red.getRGB()); // comando de testes
+            //            image.setRGB(x,y,Color.red.getRGB()); // comando de testes
                         count++;
                     }
                 }
@@ -531,7 +622,7 @@ public class Gabarito {
                 
                 // pula esses 35 + os 52 do inicio do loop para dar 87
                 // coordenada da próxima questão
-                coordX += 35;
+                coordX += 34;
                 // média < 200 = questão preenchida
                 if (mean < 220) {
                     alternativasPreenchidas++;
@@ -542,7 +633,7 @@ public class Gabarito {
             }
             // saindo do loop das alternativas pular mais 26 pixels para ajustar
             // à próxima questão
-            coordX += 25;
+            coordX += 23;
             // preencheu mais de uma?
             if (alternativasPreenchidas > 1) {
                 retorno[j] = ' ';
@@ -586,9 +677,10 @@ public class Gabarito {
         try {
             File file = new File(url);
             ImageIO.write(image, type, file);
-
-        } catch (IOException e) {
-            System.out.println("Não foi possível salvar a imagem");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
         }
     }
 

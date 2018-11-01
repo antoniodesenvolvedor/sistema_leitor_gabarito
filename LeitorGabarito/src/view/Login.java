@@ -119,6 +119,10 @@ public class Login extends javax.swing.JFrame {
               }
               
            }
+           else
+           {
+               JOptionPane.showMessageDialog(null, "Login ou senha inválidos!");
+           }
            
            
            

@@ -193,7 +193,7 @@ public class TelaUsuarios extends javax.swing.JFrame {
             }
             else{
                try{
-                    String sql = "UPDATE tb_usuario SET login = ?, senha = ?, nome = ? WHERE codigo = ?";
+                    String sql = "UPDATE tb_usuario SET login = ?, senha = ?, nome = ? WHERE  = ?";
                     PreparedStatement pst = Banco.conexao.prepareStatement(sql);
                     pst.setString(1,login);
                     pst.setString(2,senha);

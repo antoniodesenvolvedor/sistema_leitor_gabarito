@@ -23,8 +23,8 @@ public class Banco {
         
         try
         {
-            Class.forName( "com.mysql.jdbc.Driver");
-            conexao = DriverManager.getConnection( "jdbc:mysql://localhost:3306/" + banco,usuario,senha );
+            Class.forName( "com.mysql.cj.jdbc.Driver");
+            conexao = DriverManager.getConnection( "jdbc:mysql://localhost:3306/leitor_gabarito?useTimezone=true&serverTimezone=UTC" ,"root","1234" );
             System.out.println("Conexão bem sucedida" );
         }
         catch( SQLException erro )
